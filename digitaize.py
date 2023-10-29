@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import mediapipe as mp
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
 
 # Initialize the mediapipe mpHands
@@ -14,6 +15,14 @@ model = load_model('mp_hand_gesture')
 
 # Setup the Webcam
 webcamCap = cv2.VideoCapture(0)
+
+# Setup the plot
+fig = plt.figure()
+ax = plt.axes( projection='3d' )
+ax.set_xlim([0, 500])
+ax.set_ylim([0, 500])
+ax.set_zlim([-80, 0])
+plt.show( block=False )
 
 while True:
     # Read each frame from the webcam
@@ -31,16 +40,28 @@ while True:
     # Add all the hand landmarks into a landmarks list
     if result.multi_hand_landmarks:
         landmarks = []
+        xPoints = []
+        yPoints = []
+        zPoints = []
+        plt.cla()
+        ax.set_xlim([0, 400])
+        ax.set_ylim([200, 600])
+        ax.set_zlim([-50, 0])
         for handslms in result.multi_hand_landmarks:
             for landmark in handslms.landmark:
                 landmarkx = int(landmark.x * x)
+                xPoints.append( landmarkx )
                 landmarky = int(landmark.y * y)
+                yPoints.append( landmarky )
                 landmarkz = int(landmark.z * 1000)
-
+                zPoints.append( landmarkz )
                 landmarks.append([landmarkx, landmarky, landmarkz])
-
+            ax.scatter( xPoints, yPoints, zPoints, c='green' )
+            fig.canvas.draw()
+            fig.canvas.flush_events()
             # Print out the landmarks for debugging
-            print( landmarks )
+            ax.set_title( "Landmarks" )
+            plt.show( block=False )
             # Draw the landmarks on the frame
             mpDraw.draw_landmarks(frame, handslms, mpHands.HAND_CONNECTIONS)
 
@@ -58,3 +79,4 @@ webcamCap.release()
 
 # Close any active windows
 cv2.destroyAllWindows()
+plt.show()
