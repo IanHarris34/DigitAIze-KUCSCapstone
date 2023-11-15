@@ -6,6 +6,10 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
 
+landmarkNames = [ "palm", "finger0-0", "finger0-1", "finger0-2", "finger0-3", "finger1-0", "finger1-1", "finger1-2", "finger1-3", "finger2-0", "finger2-1", "finger2-2", "finger2-3", "finger3-0", "finger3-1", "finger3-2", "finger3-3", "finger4-0", "finger4-1", "finger4-2", "finger4-3" ]
+
+outFile = open("landmarks.json", "w")
+
 # Initialize the mediapipe mpHands
 mpHands = mp.solutions.hands
 hands = mpHands.Hands(max_num_hands=1, min_detection_confidence=0.7)
@@ -60,6 +64,15 @@ while True:
             fig.canvas.draw()
             fig.canvas.flush_events()
             # Print out the landmarks for debugging
+            # Print JSON
+            print("{", file=outFile)
+            idx = 0
+            for landmark in landmarks:
+                print("\t\"" + landmarkNames[ idx ] + "_x\": \"" + str( landmark[0] ) + "\",", file=outFile )
+                print("\t\"" + landmarkNames[ idx ] + "_y\": \"" + str( landmark[1] ) + "\",", file=outFile )
+                print("\t\"" + landmarkNames[ idx ] + "_z\": \"" + str( landmark[2] ) + "\",", file=outFile )
+                idx = idx + 1
+            print("}", file=outFile)
             ax.set_title( "Landmarks" )
             plt.show( block=False )
             # Draw the landmarks on the frame
@@ -80,3 +93,4 @@ webcamCap.release()
 # Close any active windows
 cv2.destroyAllWindows()
 plt.show()
+outFile.close()
