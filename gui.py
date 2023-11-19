@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk
 
+image_to_convert_filepath = ""
+
 # Opens file explorer to facilitate selection of image file to be loaded in program
 def open_image():
 
@@ -9,20 +11,35 @@ def open_image():
                                           filetypes = (("Image files", "*.png* *.jpg"), 
                                                        ("all files", "*.*")))
     
-    # Open image
-    image = Image.open(filename)
+    # Display image in image frame if valid file
+    if filename != "":
+        
+        # Set global filepath for image to convert
+        global image_to_convert_filepath 
+        image_to_convert_filepath = filename
 
-    # Resize image
-    base_height = 300
-    hpercent = (base_height / float(image.size[1]))
-    wsize = int((float(image.size[0]) * float(hpercent)))
-    image = image.resize((wsize, base_height), Image.Resampling.LANCZOS)
+        # Open image
+        image = Image.open(filename)
 
-    # Display image
-    tkimage = ImageTk.PhotoImage(image)
-    image_label.config(image=tkimage)
-    image_label.config(height=base_height)
-    image_label.image = tkimage
+        # Resize image
+        base_height = 300
+        hpercent = (base_height / float(image.size[1]))
+        wsize = int((float(image.size[0]) * float(hpercent)))
+        image = image.resize((wsize, base_height), Image.Resampling.LANCZOS)
+
+        # Display image
+        tkimage = ImageTk.PhotoImage(image)
+        image_label.config(image=tkimage)
+        image_label.config(height=base_height)
+        image_label.image = tkimage
+
+# 
+def convert_image():
+    
+    if image_to_convert_filepath != "":
+        
+        pass
+        # digitaize.py should be run here
 
 # Opens dialog box containing information on the program
 def open_about_dialog():
@@ -57,7 +74,7 @@ view_results_button = Button(window, text='View results')
 image_frame = Frame(window, width="1000", height="1000", borderwidth=1, relief='solid')
 image_label = Label(image_frame, text='Imported image will display here', height=20)
 image_label.pack(fill=BOTH, expand=True)
-convert_button = Button(window, text='Convert')
+convert_button = Button(window, text='Convert', command=convert_image)
 
 # Arrange widgets
 take_photo_button.grid(column=0, row=0, sticky='nesw', padx=4, pady=4)
