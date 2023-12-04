@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk
+from digitaize import run_from_file
 
 image_to_convert_filepath = ""
 
@@ -38,8 +39,7 @@ def convert_image():
     
     if image_to_convert_filepath != "":
         
-        pass
-        # digitaize.py should be run here
+        run_from_file(image_to_convert_filepath)
 
 # Opens dialog box containing information on the program
 def open_about_dialog():
@@ -69,7 +69,7 @@ help_menu.add_command(label='About', command=open_about_dialog)
 
 # Create widgets
 take_photo_button = Button(window, text='Take Photo')
-import_image_button = Button(window, text='Import Image', command=open_image)
+import_image_button = Button(window, text='Import Image/Video', command=open_image)
 view_results_button = Button(window, text='View results')
 image_frame = Frame(window, width="1000", height="1000", borderwidth=1, relief='solid')
 image_label = Label(image_frame, text='Imported image will display here', height=20)

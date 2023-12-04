@@ -17,29 +17,18 @@ mpDraw = mp.solutions.drawing_utils
 # Load the mpHands model
 model = load_model('mp_hand_gesture')
 
-# Setup the Webcam
-webcamCap = cv2.VideoCapture(0)
+def predict(frame):
 
-# Setup the plot
-fig = plt.figure()
-ax = plt.axes( projection='3d' )
-ax.set_xlim([0, 500])
-ax.set_ylim([0, 500])
-ax.set_zlim([-80, 0])
-plt.show( block=False )
-
-while True:
-    # Read each frame from the webcam
-    _, frame = webcamCap.read()
-
-    x, y, c = frame.shape
-
-    # Flip the frame vertically
-    frame = cv2.flip(frame, 1)
-    framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    # Setup the plot
+    fig = plt.figure()
+    ax = plt.axes( projection='3d' )
+    ax.set_xlim([0, 500])
+    ax.set_ylim([0, 500])
+    ax.set_zlim([-80, 0])
+    plt.show( block=False )
 
     # Get hand landmark prediction
-    result = hands.process(framergb)
+    result = hands.process(frame)
 
     # Add all the hand landmarks into a landmarks list
     if result.multi_hand_landmarks:
@@ -77,20 +66,48 @@ while True:
             plt.show( block=False )
             # Draw the landmarks on the frame
             mpDraw.draw_landmarks(frame, handslms, mpHands.HAND_CONNECTIONS)
-
+    
     # Show the final output, with the landmarks drawn on the image.
     cv2.imshow("Output", frame) 
 
+    # Close any active windows
+    cv2.destroyAllWindows()
+    plt.show()
+    outFile.close()
 
-	# If "q" key is pressed, escape from the loop and exit
-	# If this is not here, the OS would believe the program is "not responding" and no output would be shown (at least on Windows)
-    if cv2.waitKey(1) == ord('q'):
-        break
+def run_from_file(filepath):
+    
+    frame = cv2.imread(filepath, 0)
+    framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    predict(framergb)
 
-# Close the webcam capture
-webcamCap.release()
+def run_from_webcam():
 
-# Close any active windows
-cv2.destroyAllWindows()
-plt.show()
-outFile.close()
+    # Setup the Webcam
+    webcamCap = cv2.VideoCapture(0)
+
+    while True:
+
+        # Read each frame from the webcam
+        _, frame = webcamCap.read()
+
+        x, y, c = frame.shape
+
+        # Flip the frame vertically
+        frame = cv2.flip(frame, 1)
+        framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        predict(framergb)
+
+        # If "q" key is pressed, escape from the loop and exit
+        # If this is not here, the OS would believe the program is "not responding" and no output would be shown (at least on Windows)
+        if cv2.waitKey(1) == ord('q'):
+            break
+
+    # Close the webcam capture
+    webcamCap.release()
+
+    # Close any active windows
+    cv2.destroyAllWindows()
+    plt.show()
+    outFile.close()
