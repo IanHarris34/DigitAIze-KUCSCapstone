@@ -12,13 +12,13 @@ outFile = open("landmarks.json", "w")
 
 # Initialize the mediapipe mpHands
 mpHands = mp.solutions.hands
-hands = mpHands.Hands(max_num_hands=1, min_detection_confidence=0.7)
+hands = mpHands.Hands(max_num_hands=1, min_detection_confidence=0.7, static_image_mode=True)
 mpDraw = mp.solutions.drawing_utils
 # Load the mpHands model
 model = load_model('mp_hand_gesture')
 
 def predict(frame):
-
+    x, y, c = frame.shape
     # Setup the plot
     fig = plt.figure()
     ax = plt.axes( projection='3d' )
@@ -77,7 +77,8 @@ def predict(frame):
 
 def run_from_file(filepath):
     
-    frame = cv2.imread(filepath, 0)
+    frame = cv2.imread(filepath, 1)
+    frame = cv2.flip(frame, 1)
     framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     predict(framergb)
 
@@ -111,3 +112,5 @@ def run_from_webcam():
     cv2.destroyAllWindows()
     plt.show()
     outFile.close()
+
+run_from_webcam()
