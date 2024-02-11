@@ -112,5 +112,3 @@ def run_from_webcam():
     cv2.destroyAllWindows()
     plt.show()
     outFile.close()
-
-run_from_webcam()
