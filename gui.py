@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk
 from digitaize import run_from_file
+from digitaize import run_from_webcam
 
 image_to_convert_filepath = ""
 
@@ -41,6 +42,11 @@ def convert_image():
         
         run_from_file(image_to_convert_filepath)
 
+# Opens webcame
+def take_photo():
+
+    run_from_webcam()
+
 # Opens dialog box containing information on the program
 def open_about_dialog():
 
@@ -68,7 +74,7 @@ menu_ribbon.add_cascade(label='Help', menu=help_menu)
 help_menu.add_command(label='About', command=open_about_dialog)
 
 # Create widgets
-take_photo_button = Button(window, text='Take Photo')
+take_photo_button = Button(window, text='Take Photo', command=take_photo)
 import_image_button = Button(window, text='Import Image/Video', command=open_image)
 view_results_button = Button(window, text='View results')
 image_frame = Frame(window, width="1000", height="1000", borderwidth=1, relief='solid')
