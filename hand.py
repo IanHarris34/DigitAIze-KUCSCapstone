@@ -34,16 +34,21 @@ bpy.context.object.keyframe_insert("location", frame = 10)
 #    return(j)
 
 # Open and load JSON data from the specified file path
-with open('C:/Users/annab/Downloads/ten_frames.json', 'r') as f:
+with open('C:/Users/annab/Downloads/hundred_frames.json', 'r') as f:
     j=json.load(f)
 
+i=0
 
-#for bone in posebones:
-#    bone.rotation_euler.(x y or z)= (rotation in radians)
-for i in range(0,8):
+#set mode to pose from object
+bpy.ops.object.mode_set(mode = 'POSE')
+#insert keyframe
+bpy.context.object.keyframe_insert("location", frame = 10)   
+
+for i in range(0,99):
     for bone in posebones:    
     # Loop through each bone in the pose bones of the hand
         # Reset the rotation mode to QUATERNION for each bone
+        posebones = bpy.context.object.pose.bones
         bone.rotation_mode = 'QUATERNION'
     #    bone.rotation_euler.x -= pi/90
 
@@ -69,8 +74,12 @@ for i in range(0,8):
         
         # Calculate the rotation difference between the new and current vectors
         rotDiff = newVector.rotation_difference(curVector)
+        #rotation to revert it
+        rotDiffBack = curVector.rotation_difference(newVector)
         
         # Apply the rotation difference to the bone's quaternion rotation
         bone.rotation_quaternion.rotate(rotDiff)
         #insert keyframe
         bone.keyframe_insert("rotation_quaternion", frame=(i+10)*5)
+        #rotate it back before the next rotation is added
+        bone.rotation_quaternion.rotate(rotDiffBack)
