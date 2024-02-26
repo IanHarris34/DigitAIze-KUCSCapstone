@@ -1,10 +1,12 @@
 from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk
-from digitaize import run_from_file
-from digitaize import run_from_webcam
+from digitaize import get_photo_from_webcam
+from digitaize import run_from_image
+import cv2
 
-image_to_convert_filepath = ""
+image_to_convert = 0
+
 
 # Opens file explorer to facilitate selection of image file to be loaded in program
 def open_image():
@@ -16,36 +18,58 @@ def open_image():
     # Display image in image frame if valid file
     if filename != "":
         
-        # Set global filepath for image to convert
-        global image_to_convert_filepath 
-        image_to_convert_filepath = filename
-
         # Open image
-        image = Image.open(filename)
+        frame = cv2.imread(filename, 1)
+        frame = cv2.flip(frame, 1)
+        framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        # Resize image
-        base_height = 300
-        hpercent = (base_height / float(image.size[1]))
-        wsize = int((float(image.size[0]) * float(hpercent)))
-        image = image.resize((wsize, base_height), Image.Resampling.LANCZOS)
+        # Set global filepath for image to convert
+        global image_to_convert
+        image_to_convert = framergb
 
-        # Display image
-        tkimage = ImageTk.PhotoImage(image)
-        image_label.config(image=tkimage)
-        image_label.config(height=base_height)
-        image_label.image = tkimage
+        display_image()        
+
+
+# Displays "image_to_convert" in the GUI
+def display_image():
+
+    # Convert cv2 image to something tkinter can read
+    image = Image.fromarray(image_to_convert)
+
+    # Resize image
+    base_height = 300
+    hpercent = (base_height / float(image.size[1]))
+    wsize = int((float(image.size[0]) * float(hpercent)))
+    image = image.resize((wsize, base_height), Image.Resampling.LANCZOS)
+
+    # Display image
+    tkimage = ImageTk.PhotoImage(image)
+    image_label.config(image=tkimage)
+    image_label.config(height=base_height)
+    image_label.image = tkimage
+
 
 # 
 def convert_image():
     
-    if image_to_convert_filepath != "":
+    if image_to_convert != 0:
         
-        run_from_file(image_to_convert_filepath)
+        run_from_image(image_to_convert)
 
-# Opens webcame
+
+# Opens webcam
 def take_photo():
 
-    run_from_webcam()
+    global image_to_convert
+    image_to_convert = get_photo_from_webcam()
+    display_image()
+
+
+# Opens webcam
+def record_video():
+
+    pass
+
 
 # Opens dialog box containing information on the program
 def open_about_dialog():
@@ -55,6 +79,7 @@ def open_about_dialog():
     about_text = "Created by Annabelle Stokes, Ian Harris, Joel Clement, Louis Tracy, and Truan Leiker."
     about_label = Label(about_dialog, text=about_text)
     about_label.pack()
+
 
 # Metadata
 window = Tk()
@@ -75,6 +100,7 @@ help_menu.add_command(label='About', command=open_about_dialog)
 
 # Create widgets
 take_photo_button = Button(window, text='Take Photo', command=take_photo)
+record_video_button = Button(window, text='Record Video', command=record_video)
 import_image_button = Button(window, text='Import Image/Video', command=open_image)
 view_results_button = Button(window, text='View results')
 image_frame = Frame(window, width="1000", height="1000", borderwidth=1, relief='solid')
@@ -84,8 +110,9 @@ convert_button = Button(window, text='Convert', command=convert_image)
 
 # Arrange widgets
 take_photo_button.grid(column=0, row=0, sticky='nesw', padx=4, pady=4)
-import_image_button.grid(column=1, row=0, sticky='nesw', padx=4, pady=4)
-view_results_button.grid(column=2, row=0, sticky='nesw', padx=4, pady=4)
+record_video_button.grid(column=1, row=0, sticky='nesw', padx=4, pady=4)
+import_image_button.grid(column=2, row=0, sticky='nesw', padx=4, pady=4)
+view_results_button.grid(column=3, row=0, sticky='nesw', padx=4, pady=4)
 image_frame.grid(column=0, row=1, sticky='nesw', columnspan=3, padx=4, pady=4)
 convert_button.grid(column=0, row=2, sticky='nesw', padx=4, pady=4)
 

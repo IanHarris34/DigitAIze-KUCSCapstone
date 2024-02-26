@@ -17,8 +17,12 @@ mpDraw = mp.solutions.drawing_utils
 # Load the mpHands model
 model = load_model('mp_hand_gesture')
 
+
+# 
 def predict(frame):
+
     x, y, c = frame.shape
+
     # Setup the plot
     fig = plt.figure()
     ax = plt.axes( projection='3d' )
@@ -67,22 +71,17 @@ def predict(frame):
             # Draw the landmarks on the frame
             mpDraw.draw_landmarks(frame, handslms, mpHands.HAND_CONNECTIONS)
     
-    # Show the final output, with the landmarks drawn on the image.
-    cv2.imshow("Output", frame) 
+    return frame
 
-    # Close any active windows
-    cv2.destroyAllWindows()
-    plt.show()
-    outFile.close()
 
-def run_from_file(filepath):
+# Given a cv2 image, runs the program
+def run_from_image(image):
     
-    frame = cv2.imread(filepath, 1)
-    frame = cv2.flip(frame, 1)
-    framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    predict(framergb)
+    predict(image)
 
-def run_from_webcam():
+
+# Opens and displays webcam and returns the image taken when 'q' is pressed
+def get_photo_from_webcam():
 
     # Setup the Webcam
     webcamCap = cv2.VideoCapture(0)
@@ -92,13 +91,16 @@ def run_from_webcam():
         # Read each frame from the webcam
         _, frame = webcamCap.read()
 
-        x, y, c = frame.shape
-
         # Flip the frame vertically
         frame = cv2.flip(frame, 1)
         framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        predict(framergb)
+        # Get frame with predictions drawn over it
+        frame_with_predictions = predict(framergb)
+
+        # Display webcam capture with predictions
+        cv2.imshow("Output", frame_with_predictions)
+        #cv2.imshow("Output", framergb) 
 
         # If "q" key is pressed, escape from the loop and exit
         # If this is not here, the OS would believe the program is "not responding" and no output would be shown (at least on Windows)
@@ -112,3 +114,5 @@ def run_from_webcam():
     cv2.destroyAllWindows()
     plt.show()
     outFile.close()
+
+    return framergb
