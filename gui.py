@@ -5,7 +5,7 @@ from digitaize import get_photo_from_webcam
 from digitaize import run_from_image
 import cv2
 
-image_to_convert = 0
+image_to_convert = None
 
 
 # Opens file explorer to facilitate selection of image file to be loaded in program
@@ -52,7 +52,7 @@ def display_image():
 # 
 def convert_image():
     
-    if image_to_convert != 0:
+    if image_to_convert.any():
         
         run_from_image(image_to_convert)
 

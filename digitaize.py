@@ -29,7 +29,7 @@ def predict(frame):
     ax.set_xlim([0, 500])
     ax.set_ylim([0, 500])
     ax.set_zlim([-80, 0])
-    plt.show( block=False )
+    #plt.show( block=False )
 
     # Get hand landmark prediction
     result = hands.process(frame)
@@ -67,7 +67,7 @@ def predict(frame):
                 idx = idx + 1
             print("}", file=outFile)
             ax.set_title( "Landmarks" )
-            plt.show( block=False )
+            #plt.show( block=False )
             # Draw the landmarks on the frame
             mpDraw.draw_landmarks(frame, handslms, mpHands.HAND_CONNECTIONS)
     
