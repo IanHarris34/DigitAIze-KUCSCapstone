@@ -4,6 +4,7 @@ import numpy as np
 import mediapipe as mp
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import sys
 from tensorflow.keras.models import load_model
 
 landmarkNames = [ "palm", "finger0-0", "finger0-1", "finger0-2", "finger0-3", "finger1-0", "finger1-1", "finger1-2", "finger1-3", "finger2-0", "finger2-1", "finger2-2", "finger2-3", "finger3-0", "finger3-1", "finger3-2", "finger3-3", "finger4-0", "finger4-1", "finger4-2", "finger4-3" ]
@@ -17,20 +18,19 @@ mpDraw = mp.solutions.drawing_utils
 # Load the mpHands model
 model = load_model('mp_hand_gesture')
 
-
+fig = plt.figure()
 # 
 def predict(frame):
-
+    global fig
     x, y, c = frame.shape
 
-    # Setup the plot
-    fig = plt.figure()
+    # Clear the plot figure
+    plt.clf()
     ax = plt.axes( projection='3d' )
     ax.set_xlim([0, 500])
     ax.set_ylim([0, 500])
     ax.set_zlim([-80, 0])
-    #plt.show( block=False )
-
+    plt.show( block=False )
     # Get hand landmark prediction
     result = hands.process(frame)
 
@@ -67,7 +67,7 @@ def predict(frame):
                 idx = idx + 1
             print("}", file=outFile)
             ax.set_title( "Landmarks" )
-            #plt.show( block=False )
+            
             # Draw the landmarks on the frame
             mpDraw.draw_landmarks(frame, handslms, mpHands.HAND_CONNECTIONS)
     
@@ -101,7 +101,7 @@ def get_photo_from_webcam():
         # Display webcam capture with predictions
         cv2.imshow("Output", frame_with_predictions)
         #cv2.imshow("Output", framergb) 
-
+        #plt.show( block=False )
         # If "q" key is pressed, escape from the loop and exit
         # If this is not here, the OS would believe the program is "not responding" and no output would be shown (at least on Windows)
         if cv2.waitKey(1) == ord('q'):
@@ -116,3 +116,9 @@ def get_photo_from_webcam():
     outFile.close()
 
     return framergb
+
+#Check arguments
+if( len( sys.argv ) > 1 ):
+    #If the argument -livecam is passed, start in webcam mode
+    if( sys.argv[ 1 ] == "-livecam" ):
+        get_photo_from_webcam()
