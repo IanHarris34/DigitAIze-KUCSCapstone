@@ -19,8 +19,9 @@ mpDraw = mp.solutions.drawing_utils
 model = load_model('mp_hand_gesture')
 
 fig = plt.figure()
+
 # 
-def predict(frame):
+def predict(frame, print_json=False):
     global fig
     x, y, c = frame.shape
 
@@ -58,14 +59,15 @@ def predict(frame):
             fig.canvas.flush_events()
             # Print out the landmarks for debugging
             # Print JSON
-            print("{", file=outFile)
-            idx = 0
-            for landmark in landmarks:
-                print("\t\"" + landmarkNames[ idx ] + "_x\": \"" + str( landmark[0] ) + "\",", file=outFile )
-                print("\t\"" + landmarkNames[ idx ] + "_y\": \"" + str( landmark[1] ) + "\",", file=outFile )
-                print("\t\"" + landmarkNames[ idx ] + "_z\": \"" + str( landmark[2] ) + "\",", file=outFile )
-                idx = idx + 1
-            print("}", file=outFile)
+            if print_json:
+                print("{", file=outFile)
+                idx = 0
+                for landmark in landmarks:
+                    print("\t\"" + landmarkNames[ idx ] + "_x\": \"" + str( landmark[0] ) + "\",", file=outFile )
+                    print("\t\"" + landmarkNames[ idx ] + "_y\": \"" + str( landmark[1] ) + "\",", file=outFile )
+                    print("\t\"" + landmarkNames[ idx ] + "_z\": \"" + str( landmark[2] ) + "\",", file=outFile )
+                    idx = idx + 1
+                print("}", file=outFile)
             ax.set_title( "Landmarks" )
             
             # Draw the landmarks on the frame
@@ -77,7 +79,63 @@ def predict(frame):
 # Given a cv2 image, runs the program
 def run_from_image(image):
     
-    predict(image)
+    predict(image, True)
+
+
+# Given an array of cv2 images, runs the programs
+def run_from_video(video):
+
+    for image in video:
+        predict(image, True)
+
+
+# Opens and displays webcam and returns an array of images
+def get_video_from_webcam():
+
+    return_video = []
+    recording = False
+
+    # Setup the Webcam
+    webcamCap = cv2.VideoCapture(0)
+
+    while True:
+
+        # Read each frame from the webcam
+        _, frame = webcamCap.read()
+
+        # Flip the frame vertically
+        frame = cv2.flip(frame, 1)
+        framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        
+        # Add the current raw frame to the return_video array
+        if recording:
+            return_video.append(framergb)
+
+        # Get frame with predictions drawn over it
+        frame_with_predictions = predict(framergb, False)
+
+        # Display webcam capture with predictions
+        cv2.imshow("Output", frame_with_predictions)
+        #cv2.imshow("Output", framergb) 
+        #plt.show( block=False )
+
+        if cv2.waitKey(1) == ord('r'):
+            recording = True
+
+        # If "q" key is pressed, escape from the loop and exit
+        # If this is not here, the OS would believe the program is "not responding" and no output would be shown (at least on Windows)
+        if cv2.waitKey(1) == ord('q'):
+            break
+
+    # Close the webcam capture
+    webcamCap.release()
+
+    # Close any active windows
+    cv2.destroyAllWindows()
+    plt.show()
+    outFile.close()
+
+    return return_video
 
 
 # Opens and displays webcam and returns the image taken when 'q' is pressed
@@ -96,7 +154,7 @@ def get_photo_from_webcam():
         framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         # Get frame with predictions drawn over it
-        frame_with_predictions = predict(framergb)
+        frame_with_predictions = predict(framergb, False)
 
         # Display webcam capture with predictions
         cv2.imshow("Output", frame_with_predictions)

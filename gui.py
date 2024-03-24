@@ -2,10 +2,13 @@ from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk
 from digitaize import get_photo_from_webcam
+from digitaize import get_video_from_webcam
 from digitaize import run_from_image
+from digitaize import run_from_video
 import cv2
 
 image_to_convert = None
+video_to_convert = []
 
 
 # Opens file explorer to facilitate selection of image file to be loaded in program
@@ -49,26 +52,55 @@ def display_image():
     image_label.image = tkimage
 
 
-# 
-def convert_image():
+# Displays the first frame of the video to convert
+def display_video():
+
+    # Convert cv2 image to something tkinter can read
+    image = Image.fromarray(video_to_convert[0])
+
+    # Resize image
+    base_height = 300
+    hpercent = (base_height / float(image.size[1]))
+    wsize = int((float(image.size[0]) * float(hpercent)))
+    image = image.resize((wsize, base_height), Image.Resampling.LANCZOS)
+
+    # Display image
+    tkimage = ImageTk.PhotoImage(image)
+    image_label.config(image=tkimage)
+    image_label.config(height=base_height)
+    image_label.image = tkimage
+
+
+# Converts the displayed image/video into a landmarks written to JSON file
+def convert_image_or_video():
     
     if image_to_convert.any():
         
         run_from_image(image_to_convert)
+    
+    elif len(video_to_convert):
+
+        run_from_video(video_to_convert)
 
 
 # Opens webcam
 def take_photo():
 
     global image_to_convert
+    global video_to_convert
     image_to_convert = get_photo_from_webcam()
+    video_to_convert = None
     display_image()
 
 
 # Opens webcam
 def record_video():
 
-    pass
+    global video_to_convert
+    global image_to_convert
+    image_to_convert = None
+    video_to_convert = get_video_from_webcam()
+    display_video()
 
 
 # Opens dialog box containing information on the program
@@ -106,7 +138,7 @@ view_results_button = Button(window, text='View results')
 image_frame = Frame(window, width="1000", height="1000", borderwidth=1, relief='solid')
 image_label = Label(image_frame, text='Imported image will display here', height=20)
 image_label.pack(fill=BOTH, expand=True)
-convert_button = Button(window, text='Convert', command=convert_image)
+convert_button = Button(window, text='Convert', command=convert_image_or_video)
 
 # Arrange widgets
 take_photo_button.grid(column=0, row=0, sticky='nesw', padx=4, pady=4)
